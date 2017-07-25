@@ -1,0 +1,17 @@
+Names = 16
+Classic
+Classic_Saturated
+Daybreak
+Eximus
+Fire
+Grineer
+Halloween
+Ice
+Infested
+Lotus
+Orokin
+Red_White_Blue
+Smoke
+Storm
+Tenno
+Twilight
