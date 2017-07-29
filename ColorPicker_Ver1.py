@@ -1,9 +1,10 @@
 # Warframe Color Picker Program
 # Written by: Mike Graziano
-# Version: 1.1
+# Version: 1.2
 
 class ColorCell:
-        def __init__(self,red,green,blue):
+        def __init__(self,name,red,green,blue):
+                self.name = name
                 self.red = red
                 self.green = green
                 self.blue = blue
@@ -11,7 +12,8 @@ class ColorCell:
                 self.RGBtext = "({0:d},{1:d},{2:d})".format(red,green,blue)
                 self.HEXtext = "0x{0:X}".format(self.hex)
 
-        def update(self,red,green,blue):
+        def update(self,name,red,green,blue):
+                self.name = name
                 self.red = red
                 self.green = green
                 self.blue = blue
@@ -22,7 +24,7 @@ class ColorCell:
 class ColorPalette:
         def __init__(self, name):
                 self.name = name
-                self.palette = [[ColorCell(0,0,0) for y in range(5)] for x in range(18)]
+                self.palette = [[ColorCell("Blank",0,0,0) for y in range(5)] for x in range(18)]
 
 """ Initialize major variables:
         * List object "file_list" holds all the names of the standard Warframe pallettes.
@@ -33,7 +35,7 @@ with open("Initialize.txt", "r") as file:
         file_size = int(file.readline().lstrip("Names =  ").rstrip("\n"))
         for line in range(file_size):
                 file_list.append(file.readline().rstrip("\n"))
-archive_pallette = {}
+archive_palette = []
 test_colors = []
 
 # Creates archive pallette dictionary from text files
@@ -59,61 +61,39 @@ for item in file_list:
                                         quit(print("Error located at cell {0:d},{1:d} in {2:s}".format(line_buffer[0], line_buffer[1], item)))
 
                                 #Add values to the pallette matrix
-                                file_palette.palette[row][column].update(line_buffer[2],line_buffer[3],line_buffer[4])
+                                file_palette.palette[row][column].update(item+" ({0:d},{1:d})".format(row,column),line_buffer[2],line_buffer[3],line_buffer[4])
 
-        archive_pallette.update({item: file_palette})
+        archive_palette.append(file_palette)
 
-"""# Create test colors list from "Test_Input.txt" file
+# Create test colors list from "Test_Input.txt" file
 with open("Test_Input.txt", "r") as file:
-    for line in file:
-        line_buffer = line.rstrip().split(",")
-        test_colors.append({
-            "Name": line_buffer[0],
-            "Red": int(line_buffer[1][0:4], 0),
-            "Green": int(line_buffer[1][0:2] + line_buffer[1][4:6], 0),
-            "Blue": int(line_buffer[1][0:2] + line_buffer[1][6:8], 0),
-            "HEX": line_buffer[1]
-        })
+        for line in file:
+                line_buffer = line.rstrip().split(",")
+                test_colors.append(ColorCell(line_buffer[0],int(line_buffer[1][0:4], 0),int(line_buffer[1][0:2] + line_buffer[1][4:6], 0),int(line_buffer[1][0:2] + line_buffer[1][6:8], 0)))
 
 # Determine the best approximation for each color and output it to the "Test_Output.txt" file
 with open("Test_Output.txt", "w") as file:
-    for color in test_colors:
-        approximation = dict.fromkeys(["Pallette", "Column", "Row", "Red", "Green", "Blue", "HEX", "Total_Delta"])
-        for item in file_list:
-            for column in range(len(archive_pallette[item])):
-                for row in range(len(archive_pallette[item][column])):
+        for color in test_colors:
+                approximation = ColorCell("Blank",0,0,0)
+                approx_delta = 0
+                for item in archive_palette:
+                        for row in range(len(item.palette)):
+                                for column in range(len(item.palette[row])):
 
-                    red_delta = abs(color["Red"] - archive_pallette[item][column][row]["Red"])
-                    green_delta = abs(color["Green"] - archive_pallette[item][column][row]["Green"])
-                    blue_delta = abs(color["Blue"] - archive_pallette[item][column][row]["Blue"])
-                    total_delta = red_delta + green_delta + blue_delta
+                                        red_delta = abs(color.red - item.palette[row][column].red)
+                                        green_delta = abs(color.green - item.palette[row][column].green)
+                                        blue_delta = abs(color.blue - item.palette[row][column].blue)
+                                        total_delta = red_delta + green_delta + blue_delta
 
-                    if approximation["Total_Delta"] is None:
-                        approximation = {
-                            "Pallette": item,
-                            "Column": column,
-                            "Row": row,
-                            "Red": archive_pallette[item][column][row]["Red"],
-                            "Green": archive_pallette[item][column][row]["Green"],
-                            "Blue": archive_pallette[item][column][row]["Blue"],
-                            "HEX": archive_pallette[item][column][row]["HEX"],
-                            "Total_Delta": total_delta
-                        }
-                    else:
-                        if total_delta < approximation["Total_Delta"]:
-                            approximation = {
-                                "Pallette": item,
-                                "Column": column,
-                                "Row": row,
-                                "Red": archive_pallette[item][column][row]["Red"],
-                                "Green": archive_pallette[item][column][row]["Green"],
-                                "Blue": archive_pallette[item][column][row]["Blue"],
-                                "HEX": archive_pallette[item][column][row]["HEX"],
-                                "Total_Delta": total_delta
-                            }
+                                        if approx_delta == 0:
+                                                approximation.update(item.palette[row][column].name,item.palette[row][column].red,item.palette[row][column].green,item.palette[row][column].blue)
 
-        file.write("{0:s} can be duped with {1:s} ({2:d},{3:d})\n".format(
-            color["Name"], approximation["Pallette"], approximation["Column"]+1, approximation["Row"]+1
-        ))"""
+                                        elif total_delta < approximation["Total_Delta"]:
+                                                approximation.update(item.palette[row][column].name,item.palette[row][column].red,item.palette[row][column].green,item.palette[row][column].blue)
+
+                                        else:
+                                                pass
+
+                file.write("{0:s} can be duped with {1:s}\n".format(color.name, approximation.name))
 
 print("This program has completed its operation without issue.")
