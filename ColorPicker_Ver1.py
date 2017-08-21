@@ -1,7 +1,38 @@
-# Warframe Color Picker Program
-# Written by: Mike Graziano
-# Version: 1.2
+"""
+Warframe Color Picker Program
 
+Provide a RGB color code for a desired color and identify the closest
+approximation of this color in the various color templates.
+
+Command Line Syntax:
+This script can be initiated by typing 'python3 ColorPicker.py'
+(without the single quotes) into  the command line.
+
+Associated Files:
+Initialize.txt - Used to import the names of the various color template
+files. If adding a new template file, simply add the name on a new line
+in the file and update the number of lines indicated at the top of the
+file.
+
+Template Files - These files contain all of the RGB / Hex values for
+the various color templates. These should not be modified. If adding a 
+new file, follow the following convention:
+    * The file should be a .txt file with no spaces in the title.
+    * Each line should have the following values separated by commas
+      and no spaces: column number, row number, red value, blue value,
+      green value, hex value (e.g.-0x01A2B2)
+
+Test_Input.txt - This file is used to indicate the colors that are
+going to be compared to the templates. The following convention should
+be followed when adding colors to the file:
+    * Each color to be compared should be on a separate line.
+    * Syntax for the color: Name,Hex Value (e.g.-0xFFBF00). There are
+      no spaces after the comma.
+
+Test_Output.txt - This file is created/updated with the name of the 
+color template and the array location that is closest to the color
+provided in the Test_Input.txt file.   
+"""
 class ColorCell:
     def __init__(self, name, red, green, blue):
         self.update(name, red, green, blue)
